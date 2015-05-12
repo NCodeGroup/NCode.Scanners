@@ -30,19 +30,31 @@ Properties {
     $solutionPath = Join-Path $sourceDir $solutionName
 
     $nunit = @{
+        x86 = NullIf ${nunit.x86} $false
         runner = ${nunit.runner}
-        x86 = if (${nunit.x86} -ne $null) { ${nunit.x86} -eq $true } else { $false }
-        nologo = if (${nunit.nologo} -ne $null) { ${nunit.nologo} -eq $true } else { $true }
-        framework = NullIf ${nunit.framework} "4.0"
-        apartment = ${nunit.apartment}
-        work = CombineBase $baseDir ${nunit.work} "TestResults"
-        result = ${nunit.result}
-        out = ${nunit.out}
-        err = ${nunit.err}
+        run = ${nunit.run}
+        runlist = ${nunit.runlist}
+        config = ${nunit.config}
         include = ${nunit.include}
         exclude = ${nunit.exclude}
+        framework = NullIf ${nunit.framework} "4.0"
         process = ${nunit.process}
         domain = ${nunit.domain}
+        apartment = ${nunit.apartment}
+        timeout = ${nunit.timeout}
+        out = ${nunit.out}
+        err = ${nunit.err}
+        result = ${nunit.result}
+        work = CombineBase $baseDir ${nunit.work} "TestResults"
+        trace = ${nunit.trace}
+        noshadow = ${nunit.noshadow}
+        nothread = ${nunit.nothread}
+        stoponerror = ${nunit.stoponerror}
+        wait = ${nunit.wait}
+        xmlconsole = ${nunit.xmlconsole}
+        nologo = NullIf ${nunit.nologo} $true
+        cleanup = ${nunit.cleanup}
+        arguments = ${nunit.arguments}
     }
 
     $msbuild = [PSCustomObject] @{
@@ -54,8 +66,8 @@ Properties {
     $isRunningInTeamCity = ${env:teamcity.dotnet.nunitaddin} -ne $null
 }
 
-function NullIf([String] $value1, [String] $value2) {
-    if ([String]::IsNullOrEmpty($value1)) {
+function NullIf($value1, $value2) {
+    if ($value1 -eq $null) {
         return $value2
     }
     return $value1
@@ -240,7 +252,12 @@ function Invoke-NUnit {
         [Switch] $nologo,
 
         [Parameter(Mandatory = $false)]
-        [Switch] $cleanup
+        [Switch] $cleanup,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNull()]
+        [Alias("args")]
+        [String[]] $arguments = @()
     )
 
     [String[]] $argsArray = @($tests)
@@ -313,6 +330,9 @@ function Invoke-NUnit {
     }
     if ($cleanup) {
         $argsArray += "/cleanup"
+    }
+    foreach ($argument in $arguments) {
+        $argsArray += $argument
     }
 
     #
