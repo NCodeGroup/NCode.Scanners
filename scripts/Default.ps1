@@ -6,7 +6,7 @@ if ($psake -eq $null) {
     return
 }
 
-Framework "4.0"
+# Framework "4.0"
 
 Properties {
     $build = @{}
@@ -59,17 +59,25 @@ FormatTaskName (("-"*25) + "[{0}]" + ("-"*25))
 
 Task Default -Depends Test
 
-Task Init {
+Task Info {
+    $info = @{}
+    $build.GetEnumerator() | %{ $info["build." + $_.Key] = $_.Value }
+    $nunit.GetEnumerator() | %{ $info["nunit." + $_.Key] = $_.Value }
+    $msbuild.GetEnumerator() | %{ $info["msbuild." + $_.Key] = $_.Value }
+    $info.GetEnumerator() | Sort-Object -Property Name | Format-Table -AutoSize | Out-String | Write-Host -ForegroundColor Yellow
+}
+
+Task Init -depends Info {
     New-Item $build.outputDir -ItemType Directory -Force | Out-Null
     New-Item $nunit.work -ItemType Directory -Force | Out-Null
 }
 
-Task Purge {
+Task Purge -depends Info {
     Get-ChildItem $build.outputDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     Get-ChildItem $nunit.work | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
-Task Restore {
+Task Restore -depends Info {
     NuGet restore $build.project
 }
 
