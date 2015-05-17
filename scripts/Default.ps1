@@ -1,5 +1,6 @@
 ﻿
 if ($psake -eq $null) {
+    cls
     Write-Host "Using Bootstrap" -ForegroundColor Yellow
     . $PSScriptRoot\Build.ps1 -buildFile $PSCommandPath @args
     return
@@ -8,76 +9,50 @@ if ($psake -eq $null) {
 Framework "4.0"
 
 Properties {
-    $scriptDir = $psake.build_script_dir
-    $baseDir = Split-Path $scriptDir
-    $sourceDir = Join-Path $baseDir "src"
-    $outputDir = Join-Path $baseDir "build"
-    $testDir = Join-Path $baseDir "TestResults"
+    $build = @{}
 
-    # http://social.technet.microsoft.com/wiki/contents/articles/7804.powershell-creating-custom-objects.aspx
-    $build = [PSCustomObject] @{
-        name = NullIf ${build.name} "NCode.Scanners"
-        configuration = NullIf ${build.configuration} "Release"
-        platform = NullIf ${build.platform} "Any CPU"
-        input = NullIf ${build.input} "$sourceDir\$name.sln"
-    }
+    $build.baseDir = NullIf ${build.baseDir} (Split-Path $psake.build_script_dir)
+    $build.sourceDir = CombineBase $build.baseDir ${build.sourceDir} "src"
+    $build.outputDir = CombineBase $build.baseDir ${build.outputDir} "build"
 
-    $buildName = NullIf ${build.name} "NCode.Scanners"
-    $configurationName = NullIf ${build.configuration} "Release"
-    $platformName = NullIf ${build.platform} "Any CPU"
+    $build.name = NullIf ${build.name} (Split-Path $build.baseDir -Leaf)
+    $build.configuration = NullIf ${build.configuration} "Release"
+    $build.platform = NullIf ${build.platform} "Any CPU"
 
-    $solutionName = NullIf ${build.input} "$buildName.sln"
-    $solutionPath = Join-Path $sourceDir $solutionName
+    $build.projectExt = NullIf ${build.projectExt} ".sln"
+    $build.project = CombineBase $build.sourceDir ${build.project} "$($build.name)$($build.projectExt)"
 
+    # defaults for 'nunit'
     $nunit = @{
-        x86 = NullIf ${nunit.x86} $false
-        runner = ${nunit.runner}
-        run = ${nunit.run}
-        runlist = ${nunit.runlist}
-        config = ${nunit.config}
-        include = ${nunit.include}
-        exclude = ${nunit.exclude}
-        framework = NullIf ${nunit.framework} "4.0"
-        process = ${nunit.process}
-        domain = ${nunit.domain}
-        apartment = ${nunit.apartment}
-        timeout = ${nunit.timeout}
-        out = ${nunit.out}
-        err = ${nunit.err}
-        result = ${nunit.result}
-        work = CombineBase $baseDir ${nunit.work} "TestResults"
-        trace = ${nunit.trace}
-        noshadow = ${nunit.noshadow}
-        nothread = ${nunit.nothread}
-        stoponerror = ${nunit.stoponerror}
-        wait = ${nunit.wait}
-        xmlconsole = ${nunit.xmlconsole}
-        nologo = NullIf ${nunit.nologo} $true
-        cleanup = ${nunit.cleanup}
-        arguments = ${nunit.arguments}
+        x86 = $false
+        nologo = $true
+        work = "test-results"
+        framework = $psake.context.config.framework
+        tests = { Get-ChildItem -Path $build.outputDir -Recurse -Include *Test*.dll }
     }
+    # bind any 'nunit' variables to properties
+    Bind-Parameters -command "Invoke-NUnit" -prefix "nunit" -arguments $nunit
+    # convert any relative paths to absolute paths
+    $nunit.work = [System.IO.Path]::Combine($build.baseDir, $nunit.work)
 
-    $msbuild = [PSCustomObject] @{
-        arguments = [string[]] @()
-        properties = @{}
+    # defaults for 'msbuild'
+    $msbuild = @{
+        nologo = $true
         verbosity = "minimal"
+        maxcpucount = $true
+        project = $build.project
+        configuration = $build.configuration
+        outputDir = $build.outputDir
+        properties = @{ GenerateProjectSpecificOutputFolder = $true }
+        "target.clean" = "Clean"
+        "target.build" = "Build"
     }
+    # bind any 'msbuild' variables to properties
+    Bind-Parameters -command "Invoke-MSBuild" -prefix "msbuild" -arguments $msbuild
+    # convert any relative paths to absolute paths
+    $msbuild.outputDir = [System.IO.Path]::Combine($build.baseDir, $msbuild.outputDir)
 
     $isRunningInTeamCity = ${env:teamcity.dotnet.nunitaddin} -ne $null
-}
-
-function NullIf($value1, $value2) {
-    if ($value1 -eq $null) {
-        return $value2
-    }
-    return $value1
-}
-
-function CombineBase([String] $base, [String] $path, [String] $default) {
-    if ([String]::IsNullOrEmpty($path)) {
-        $path = $default
-    }
-    return [System.IO.Path]::Combine($base, $path)
 }
 
 FormatTaskName (("-"*25) + "[{0}]" + ("-"*25))
@@ -85,35 +60,29 @@ FormatTaskName (("-"*25) + "[{0}]" + ("-"*25))
 Task Default -Depends Test
 
 Task Init {
-    New-Item $outputDir -ItemType Directory -Force | Out-Null
-    New-Item $testDir -ItemType Directory -Force | Out-Null
+    New-Item $build.outputDir -ItemType Directory -Force | Out-Null
+    New-Item $nunit.work -ItemType Directory -Force | Out-Null
 }
 
 Task Purge {
-    Get-ChildItem $outputDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+    Get-ChildItem $build.outputDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+    Get-ChildItem $nunit.work | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
 Task Restore {
-    NuGet restore "$solutionPath"
+    NuGet restore $build.project
 }
 
 Task Clean -depends Init {
-    Invoke-MSBuild -nologo -verbosity minimal -maxcpucount `
-        -file $solutionPath `
-        -targets "Clean" `
-        -configuration $configurationName `
-        -outputDir $outputDir `
-        -properties @{GenerateProjectSpecificOutputFolder=$true}
+    $msbuild = $msbuild.Clone()
+    $msbuild.target = $msbuild["target.clean"]
+    Invoke-MSBuild @msbuild
 }
 
 Task Compile -depends Init, Restore, Clean {
-    Invoke-MSBuild -nologo -verbosity minimal -maxcpucount `
-        -file $solutionPath `
-        -targets "Build" `
-        -configuration $configurationName `
-        -platform $platformName `
-        -outputDir $outputDir `
-        -properties @{GenerateProjectSpecificOutputFolder=$true}
+    $msbuild = $msbuild.Clone()
+    $msbuild.target = $msbuild["target.build"]
+    Invoke-MSBuild @msbuild
 }
 
 Task NUnit-Probe -depends Restore {
@@ -122,7 +91,7 @@ Task NUnit-Probe -depends Restore {
         if ($nunit.x86 -eq $true) {
             $platform = "-x86"
         }
-        $nunit.runner = Get-ChildItem -Path $sourceDir -Include "nunit-console$platform.exe" -Recurse | Sort-Object | Select-Object -Last 1
+        $nunit.runner = Get-ChildItem -Path $build.sourceDir -Include "nunit-console$platform.exe" -Recurse | Sort-Object | Select-Object -Last 1
     }
 }
 
@@ -139,27 +108,59 @@ Task NUnit-Addin -depends NUnit-Probe -precondition { return $isRunningInTeamCit
 }
 
 Task Test -depends NUnit-Probe, NUnit-Addin, Compile, Clean {
-    $resultsDir = Join-Path $baseDir "TestResults"
-    New-Item $resultsDir -Type Directory -Force | Out-Null
-    $tests = Get-ChildItem -Path $outputDir -Recurse -Include *Test*.dll
-
-    [Hashtable] $argsHash = @{}
-    $knownArgs = (Get-Command Invoke-NUnit).Parameters
-    foreach ($kvp in $nunit.GetEnumerator()) {
-        $key = $kvp.Key
-        $value = $kvp.Value
-        if ($key -ne $null -and $value -ne $null -and $knownArgs.ContainsKey($key)) {
-            $argsHash[$key] = $value
-        }
+    $nunit = $nunit.Clone()
+    if ($nunit.tests -is [Scriptblock]) {
+        $nunit.tests = &$nunit.tests
     }
-    $argsHash.tests = $tests
-    Invoke-NUnit @argsHash
+    Invoke-NUnit @nunit
+}
+
+function NullIf($value1, $value2) {
+    if ($value1 -eq $null) {
+        return $value2
+    }
+    return $value1
+}
+
+function CombineBase([String] $base, [String] $path, [String] $default) {
+    if ([String]::IsNullOrEmpty($path)) {
+        $path = $default
+    }
+    return [System.IO.Path]::Combine($base, $path)
+}
+
+function Bind-Parameters {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [String] $command,
+
+        [Parameter(Mandatory = $true, Position = 1)]
+        [ValidateNotNullOrEmpty()]
+        [String] $prefix,
+
+        [Parameter(Mandatory = $true, Position = 2)]
+        [ValidateNotNull()]
+        [Hashtable] $arguments
+    )
+
+    $cmd = Get-Command -Name $command
+    $parameters = $cmd.Parameters.Values.GetEnumerator()
+    $variables = Get-Variable -Name "$prefix*"
+
+    foreach ($parameter in $parameters) {
+        $name = $parameter.Name
+        $variable = $variables |? { $_.Name -eq "$prefix.$name" }
+        if ($variable -eq $null) { continue }
+        $arguments[$name] = $variable.Value
+    }
 }
 
 function Invoke-NUnit {
     # http://www.nunit.org/index.php?p=consoleCommandLine&r=2.6.4
     [CmdletBinding()]
-    param (
+    Param (
         [Parameter(Mandatory = $true, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({ Test-Path $_ })]
@@ -257,7 +258,11 @@ function Invoke-NUnit {
         [Parameter(Mandatory = $false)]
         [ValidateNotNull()]
         [Alias("args")]
-        [String[]] $arguments = @()
+        [String[]] $arguments = @(),
+
+        # the following parameter is used to skip/ignore unknown arguments passed into this function
+        [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
+        $others
     )
 
     [String[]] $argsArray = @($tests)
@@ -346,11 +351,11 @@ function Invoke-NUnit {
 
 function Invoke-MSBuild {
     [CmdletBinding()]
-    param (
+    Param (
         [Parameter(Mandatory = $true, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias("f")]
-        [String] $file,
+        [Alias("solution")]
+        [String] $project,
 
         [Parameter(Mandatory = $true, Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -398,10 +403,14 @@ function Invoke-MSBuild {
         [Parameter(Mandatory = $false)]
         [ValidateNotNull()]
         [Alias("args")]
-        [String[]] $arguments = @()
+        [String[]] $arguments = @(),
+
+        # the following parameter is used to skip/ignore unknown arguments passed into this function
+        [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
+        $others
     )
 
-    [String[]] $argsArray = @($file)
+    [String[]] $argsArray = @($project)
 
     if ($nologo -eq $true) {
         $argsArray += "/nologo"
