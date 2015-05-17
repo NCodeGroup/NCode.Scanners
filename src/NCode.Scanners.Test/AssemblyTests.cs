@@ -8,10 +8,19 @@ namespace NCode.Scanners.Test
 	[TestFixture]
 	public class AssemblyTests
 	{
+		public virtual void Dump(Assembly[] collection)
+		{
+			foreach (var assembly in collection)
+			{
+				Console.WriteLine(assembly);
+			}
+		}
+
 		[Test]
 		public void LoadedAssemblyDefinedTypes()
 		{
 			var loaded = AppDomain.CurrentDomain.GetAssemblies();
+			Dump(loaded);
 
 			var context = ScannerFactory.CreateContext();
 			var items = ScannerFactory.Immutable(loaded)
@@ -26,6 +35,7 @@ namespace NCode.Scanners.Test
 		public void LoadedAssemblyExportedTypes()
 		{
 			var loaded = AppDomain.CurrentDomain.GetAssemblies();
+			Dump(loaded);
 
 			var context = ScannerFactory.CreateContext();
 			var items = ScannerFactory.Immutable(loaded)
