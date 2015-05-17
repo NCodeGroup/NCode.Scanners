@@ -34,7 +34,12 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void LoadedAssemblyExportedTypes()
 		{
-			var loaded = AppDomain.CurrentDomain.GetAssemblies();
+			var loaded = AppDomain
+				.CurrentDomain
+				.GetAssemblies()
+				// System.NotSupportedException : The invoked member is not supported in a dynamic assembly.
+				.Where(asm => !asm.IsDynamic)
+				.ToArray();
 			Dump(loaded);
 
 			var context = ScannerFactory.CreateContext();

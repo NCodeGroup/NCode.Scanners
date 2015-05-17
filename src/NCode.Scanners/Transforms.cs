@@ -18,6 +18,12 @@ namespace NCode.Scanners
 				{
 					types = getter(assembly);
 				}
+				catch (NotSupportedException)
+				{
+					// System.NotSupportedException : The invoked member is not supported in a dynamic assembly.
+					if (!assembly.IsDynamic) throw;
+					types = Enumerable.Empty<TypeInfo>();
+				}
 				catch (ReflectionTypeLoadException exception)
 				{
 					types = exception.Types.Where(type => type != null).Select(type => type.GetTypeInfo());
