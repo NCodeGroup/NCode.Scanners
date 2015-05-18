@@ -52,6 +52,15 @@ Properties {
     # convert any relative paths to absolute paths
     $msbuild.outputDir = [System.IO.Path]::Combine($build.baseDir, $msbuild.outputDir)
 
+    $pack = @{
+        Verbosity = "detailed"
+        NonInteractive = $true
+        NoPackageAnalysis = $true
+        OutputDirectory = $msbuild.outputDir
+        BasePath = $msbuild.baseDir
+        Properties = @{ Configuration = $build.configuration }
+    }
+
     $isRunningInTeamCity = ${env:teamcity.dotnet.nunitaddin} -ne $null
 }
 
@@ -72,7 +81,7 @@ Task Init -depends Info {
     New-Item $nunit.work -ItemType Directory -Force | Out-Null
 }
 
-Task Purge -depends Info {
+Task Purge -depends Init {
     Get-ChildItem $build.outputDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     Get-ChildItem $nunit.work | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
 }
@@ -104,6 +113,8 @@ Task NUnit-Probe -depends Restore {
 }
 
 Task NUnit-Addin -depends NUnit-Probe -precondition { return $isRunningInTeamCity } {
+    Write-Host "Initializing TeamCity addin for NUnit" -ForegroundColor Yellow
+
     $name = [System.Reflection.AssemblyName]::GetAssemblyName($nunit.runner)
     $version = $name.Version.ToString(3)
 
@@ -121,6 +132,24 @@ Task Test -depends NUnit-Probe, NUnit-Addin, Compile, Clean {
         $nunit.tests = &$nunit.tests
     }
     Invoke-NUnit @nunit
+}
+
+Task Package -depends Test, Compile, Clean {
+    Get-ChildItem -Path $build.sourceDir -Include *.nuspec -Recurse |% {
+        $nuspec = $_
+        $packDir = Split-Path -Path $nuspec -Parent
+        $packArgs = @(
+            "pack"
+            "$nuspec"
+            "-Verbosity", "detailed"
+            "-NonInteractive"
+            "-NoPackageAnalysis"
+            "-OutputDirectory", $build.outputDir
+            "-BasePath", $build.baseDir
+        )
+        Write-Host "NuGet $packArgs" -ForegroundColor Yellow
+        exec { NuGet $packArgs }
+    }
 }
 
 function NullIf($value1, $value2) {
@@ -467,4 +496,93 @@ function Invoke-MSBuild {
 
     Write-Host "msbuild $argsArray" -ForegroundColor Yellow
     exec { msbuild $argsArray }
+}
+
+
+function Invoke-Pack {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [String] $nuspec,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("ver")]
+        [String] $version,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("base")]
+        [String] $basePath,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("out")]
+        [String] $outputDirectory,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNull()]
+        [Alias("props")]
+        [Hashtable] $properties = @{},
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [String] $exclude,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $tool,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $build,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $symbols,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $noDefaultExcludes,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $noPackageAnalysis,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $includeReferencedProjects,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $excludeEmptyDirectories,
+
+        [Parameter(Mandatory = $false)]
+        [Switch] $nonInteractive = $true,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [String] $minClientVersion,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("quiet", "normal", "detailed")]
+        [String] $verbosity = "detailed",
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNull()]
+        [Alias("args")]
+        [String[]] $arguments = @(),
+
+        # the following parameter is used to skip/ignore unknown arguments passed into this function
+        [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
+        $others
+    )
+
+    [String[]] $argsArray = @("push", $nuspec)
+
+    foreach ($property in $properties.GetEnumerator()) {
+        [String] $key = $property.Key
+        [String] $value = $property.Value
+        $argsArray += "-Prop"
+        $argsArray += "$key=$value"
+    }
+
+    foreach ($argument in $arguments) {
+        $argsArray += $argument
+    }
 }

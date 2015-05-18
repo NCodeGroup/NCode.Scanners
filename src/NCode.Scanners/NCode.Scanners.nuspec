@@ -9,9 +9,11 @@
 		<authors>NCode Group</authors>
 		<copyright>Copyright © 2015 NCode Group</copyright>
 
+		<!--
 		<iconUrl></iconUrl>
 		<projectUrl></projectUrl>
 		<licenseUrl></licenseUrl>
+		-->
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 
 		<summary></summary>
@@ -25,7 +27,7 @@ v1.0.0-alpha1 - Initial draft.
 		</releaseNotes>
 	</metadata>
 	<files>
-		<file src="COPYRIGHT.txt" />
 		<file src="LICENSE.txt" />
+		<file src="README.md" />
 	</files>
 </package>
