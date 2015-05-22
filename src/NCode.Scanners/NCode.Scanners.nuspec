@@ -7,7 +7,7 @@
 
 		<owners>NCode Group</owners>
 		<authors>NCode Group</authors>
-		<copyright>Copyright © 2015 NCode Group</copyright>
+		<copyright>Copyright © $year$ NCode Group</copyright>
 
 		<!--
 		<iconUrl></iconUrl>

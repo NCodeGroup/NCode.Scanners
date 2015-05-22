@@ -21,6 +21,7 @@ Properties {
 
     $build.projectExt = NullIf ${build.projectExt} ".sln"
     $build.project = CombineBase $build.sourceDir ${build.project} "$($build.name)$($build.projectExt)"
+    $build.generateProjectSpecificOutputFolder = NullIf ${build.generateProjectSpecificOutputFolder} $true
 
     # defaults for 'nunit'
     $nunit = @{
@@ -43,7 +44,9 @@ Properties {
         project = $build.project
         configuration = $build.configuration
         outputDir = $build.outputDir
-        properties = @{ GenerateProjectSpecificOutputFolder = $true }
+        properties = @{
+            GenerateProjectSpecificOutputFolder = $build.generateProjectSpecificOutputFolder
+        }
         "target.clean" = "Clean"
         "target.build" = "Build"
     }
@@ -52,14 +55,27 @@ Properties {
     # convert any relative paths to absolute paths
     $msbuild.outputDir = [System.IO.Path]::Combine($build.baseDir, $msbuild.outputDir)
 
+    # defaults for 'pack'
     $pack = @{
+        Version = $build.version
         Verbosity = "detailed"
         NonInteractive = $true
         NoPackageAnalysis = $true
+        BasePath = $build.baseDir
         OutputDirectory = $msbuild.outputDir
-        BasePath = $msbuild.baseDir
-        Properties = @{ Configuration = $build.configuration }
+        Properties = @{
+            GenerateProjectSpecificOutputFolder = $build.generateProjectSpecificOutputFolder
+            Configuration = $build.configuration
+            OutDir = $msbuild.outputDir
+            Timestamp = [DateTimeOffset]::Now.ToString("O")
+            Year = [DateTime]::Now.Year
+        }
     }
+    # bind any 'pack' variables to properties
+    Bind-Parameters -command "Invoke-Pack" -prefix "pack" -arguments $pack
+    # convert any relative paths to absolute paths
+    $pack.BasePath = [System.IO.Path]::Combine($build.baseDir, $pack.BasePath)
+    $pack.OutputDirectory = [System.IO.Path]::Combine($build.baseDir, $pack.OutputDirectory)
 
     $isRunningInTeamCity = ${env:teamcity.dotnet.nunitaddin} -ne $null
 }
@@ -73,6 +89,7 @@ Task Info {
     $build.GetEnumerator() | %{ $info["build." + $_.Key] = $_.Value }
     $nunit.GetEnumerator() | %{ $info["nunit." + $_.Key] = $_.Value }
     $msbuild.GetEnumerator() | %{ $info["msbuild." + $_.Key] = $_.Value }
+    $pack.GetEnumerator() | %{ $info["pack." + $_.Key] = $_.Value }
     $info.GetEnumerator() | Sort-Object -Property Name | Format-Table -AutoSize | Out-String | Write-Host -ForegroundColor Yellow
 }
 
@@ -137,18 +154,15 @@ Task Test -depends NUnit-Probe, NUnit-Addin, Compile, Clean {
 Task Package -depends Test, Compile, Clean {
     Get-ChildItem -Path $build.sourceDir -Include *.nuspec -Recurse |% {
         $nuspec = $_
-        $packDir = Split-Path -Path $nuspec -Parent
-        $packArgs = @(
-            "pack"
-            "$nuspec"
-            "-Verbosity", "detailed"
-            "-NonInteractive"
-            "-NoPackageAnalysis"
-            "-OutputDirectory", $build.outputDir
-            "-BasePath", $build.baseDir
-        )
-        Write-Host "NuGet $packArgs" -ForegroundColor Yellow
-        exec { NuGet $packArgs }
+        $csproj = [System.IO.Path]::ChangeExtension($nuspec, ".??proj")
+
+        $pack = $pack.Clone()
+        if (Test-Path $csproj) {
+            $pack.nuspec = Resolve-Path $csproj
+        } else {
+            $pack.nuspec = $nuspec
+        }
+        Invoke-Pack @pack
     }
 }
 
@@ -188,9 +202,29 @@ function Bind-Parameters {
 
     foreach ($parameter in $parameters) {
         $name = $parameter.Name
+
         $variable = $variables |? { $_.Name -eq "$prefix.$name" }
-        if ($variable -eq $null) { continue }
-        $arguments[$name] = $variable.Value
+        if ($variable) {
+            $newValue = $variable.Value
+            $prevValue = $arguments[$name]
+            if ($newValue -is [Hashtable] -and $prevValue -is [Hashtable]) {
+                foreach ($kvp in $newValue.GetEnumerator()) {
+                    $prevValue[$kvp.Key] = $kvp.Value
+                }
+            } else {
+                $arguments[$name] = $newValue
+            }
+        }
+
+        $validateNotNullOrEmpty = @($parameter.Attributes |?{ [ValidateNotNullOrEmpty].IsInstanceOfType($_) }).Count -gt 0
+        $validateNotNull = $validateNotNullOrEmpty -or (@($parameter.Attributes |?{ [ValidateNotNull].IsInstanceOfType($_) }).Count -gt 0)
+
+        if ($arguments.ContainsKey($name)) {
+            $value = $arguments[$name]
+            if (($validateNotNull -and $value -eq $null) -or ($validateNotNullOrEmpty -and [String]::IsNullOrEmpty($value))) {
+                $arguments.Remove($name)
+            }
+        }
     }
 }
 
@@ -452,39 +486,31 @@ function Invoke-MSBuild {
     if ($nologo -eq $true) {
         $argsArray += "/nologo"
     }
-
     if ($verbosity -ne $null) {
         $argsArray += "/v:$verbosity"
     }
-
     foreach ($target in $targets) {
         $argsArray += "/t:$target"
     }
-
     if ($maxcpucount -eq $true) {
         $argsArray += "/m"
     } elseif ($cpucount -ne $null) {
         $argsArray += "/m:$cpucount"
     }
-
     if (![String]::IsNullOrEmpty($configuration)) {
         $properties["Configuration"] = $configuration
     }
-
     if (![String]::IsNullOrEmpty($platform)) {
         $properties["Platform"] = $platform
     }
-
     if (![String]::IsNullOrEmpty($outputDir)) {
         $properties["OutDir"] = $outputDir
     }
-
     foreach ($property in $properties.GetEnumerator()) {
         [String] $key = $property.Key
         [String] $value = $property.Value
         $argsArray += "/p:$key=$value"
     }
-
     foreach ($argument in $arguments) {
         $argsArray += $argument
     }
@@ -497,7 +523,6 @@ function Invoke-MSBuild {
     Write-Host "msbuild $argsArray" -ForegroundColor Yellow
     exec { msbuild $argsArray }
 }
-
 
 function Invoke-Pack {
     [CmdletBinding()]
@@ -573,16 +598,71 @@ function Invoke-Pack {
         $others
     )
 
-    [String[]] $argsArray = @("push", $nuspec)
+    [String[]] $argsArray = @("pack", $nuspec)
 
+    if ($tool) {
+        $argsArray+= "-Tool"
+    }
+    if ($build) {
+        $argsArray+= "-Build"
+    }
+    if ($symbols) {
+        $argsArray+= "-Symbols"
+    }
+    if ($noDefaultExcludes) {
+        $argsArray+= "-NoDefaultExcludes"
+    }
+    if ($noPackageAnalysis) {
+        $argsArray+= "-NoPackageAnalysis"
+    }
+    if ($includeReferencedProjects) {
+        $argsArray+= "-IncludeReferencedProjects"
+    }
+    if ($excludeEmptyDirectories) {
+        $argsArray+= "-ExcludeEmptyDirectories"
+    }
+    if ($nonInteractive) {
+        $argsArray+= "-NonInteractive"
+    }
+    if (![String]::IsNullOrEmpty($verbosity)) {
+        $argsArray+= "-Verbosity"
+        $argsArray+= $verbosity
+    }
+    if (![String]::IsNullOrEmpty($version)) {
+        $argsArray+= "-Version"
+        $argsArray+= $version
+    }
+    if (![String]::IsNullOrEmpty($basePath)) {
+        $argsArray+= "-BasePath"
+        $argsArray+= $basePath
+    }
+    if (![String]::IsNullOrEmpty($outputDirectory)) {
+        $argsArray+= "-OutputDirectory"
+        $argsArray+= $outputDirectory
+    }
     foreach ($property in $properties.GetEnumerator()) {
         [String] $key = $property.Key
         [String] $value = $property.Value
         $argsArray += "-Prop"
         $argsArray += "$key=$value"
     }
-
+    if (![String]::IsNullOrEmpty($exclude)) {
+        $argsArray+= "-Exclude"
+        $argsArray+= $exclude
+    }
+    if (![String]::IsNullOrEmpty($minClientVersion)) {
+        $argsArray+= "-MinClientVersion"
+        $argsArray+= $minClientVersion
+    }
     foreach ($argument in $arguments) {
         $argsArray += $argument
     }
+
+    #
+    # Quoting is not necessary when using arrays. See the following:
+    # http://edgylogic.com/blog/powershell-and-external-commands-done-right/
+    #
+
+    Write-Host "NuGet $argsArray" -ForegroundColor Yellow
+    exec { NuGet $argsArray }
 }

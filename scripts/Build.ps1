@@ -25,7 +25,9 @@ $ErrorActionPreference = "Stop"
 pushd $PSScriptRoot
 $PreviousDirectory = [Environment]::CurrentDirectory
 [Environment]::CurrentDirectory = $PSScriptRoot
-Write-Host "PSScriptRoot: $PSScriptRoot"
+Write-Host "PSScriptRoot: $PSScriptRoot" -ForegroundColor Yellow
+Write-Host "BuildFile: $buildFile" -ForegroundColor Yellow
+Write-Host "TaskList: $taskList" -ForegroundColor Yellow
 
 try {
     # first make sure NuGet exists
