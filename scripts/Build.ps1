@@ -9,15 +9,21 @@
 [CmdletBinding()]
 param (
     [Parameter(Position = 0, Mandatory = $false)]
+    [Alias("f")]
     [String] $buildFile,
 
     [Parameter(Position = 1, Mandatory = $false)]
+    [Alias("t")]
+    [Alias("task")]
+    [Alias("target")]
     [String[]] $taskList = @(""),
 
     [Parameter(Mandatory = $false)]
+    [Alias("params")]
     [Hashtable] $parameters = @{},
 
     [Parameter(Mandatory = $false)]
+    [Alias("props")]
     [Hashtable] $properties = @{}
 )
 $ErrorActionPreference = "Stop"
