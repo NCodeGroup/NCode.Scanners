@@ -3,17 +3,15 @@
 	<metadata minClientVersion="2.8">
 		<id>NCode.Scanners</id>
 		<title>NCode.Scanners</title>
-		<version>1.0.0-alpha1</version>
+		<version>1.0.0</version>
 
 		<owners>NCode Group</owners>
 		<authors>NCode Group</authors>
 		<copyright>Copyright © $year$ NCode Group</copyright>
 
-		<!--
 		<iconUrl></iconUrl>
-		<projectUrl></projectUrl>
-		<licenseUrl></licenseUrl>
-		-->
+		<projectUrl>https://github.com/NCodeGroup/NCode.Scanners</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/LICENSE.txt</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 
 		<summary></summary>
@@ -22,11 +20,12 @@
 
 		<releaseNotes>
 			<![CDATA[
-v1.0.0-alpha1 - Initial draft.
+v1.0.0 - Initial version.
 ]]>
 		</releaseNotes>
 	</metadata>
 	<files>
+		<file src="COPYRIGHT.txt" />
 		<file src="LICENSE.txt" />
 		<file src="README.md" />
 	</files>

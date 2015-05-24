@@ -48,7 +48,7 @@ Properties {
             GenerateProjectSpecificOutputFolder = $build.generateProjectSpecificOutputFolder
         }
         "target.clean" = "Clean"
-        "target.build" = "Build"
+        "target.compile" = "Build"
     }
     # bind any 'msbuild' variables to properties
     Bind-Parameters -command "Invoke-MSBuild" -prefix "msbuild" -arguments $msbuild
@@ -57,6 +57,7 @@ Properties {
 
     # defaults for 'pack'
     $pack = @{
+        UseProjectFile = $true
         Version = $build.version
         Verbosity = "detailed"
         NonInteractive = $true
@@ -85,12 +86,28 @@ FormatTaskName (("-"*25) + "[{0}]" + ("-"*25))
 Task Default -Depends Test
 
 Task Info {
+    # display all the properties in a table
+    # also expand any inner hastables or scriptblocks
     $info = @{}
     $build.GetEnumerator() | %{ $info["build." + $_.Key] = $_.Value }
     $nunit.GetEnumerator() | %{ $info["nunit." + $_.Key] = $_.Value }
     $msbuild.GetEnumerator() | %{ $info["msbuild." + $_.Key] = $_.Value }
     $pack.GetEnumerator() | %{ $info["pack." + $_.Key] = $_.Value }
-    $info.GetEnumerator() | Sort-Object -Property Name | Format-Table -AutoSize | Out-String | Write-Host -ForegroundColor Yellow
+    $info.GetEnumerator() |
+        Sort-Object -Property Name |
+        Format-Table -AutoSize -Property Name, @{n='Value';e={
+            if ($_.Value -is [Hashtable]) {
+                $inner = $_.Value
+                $pairs = $inner.Keys | Sort | %{ "{0}={1}" -f $_, $inner[$_] }
+                "{ $($pairs -join '; ') }"
+            } elseif ($_.Value -is [Scriptblock]) {
+                "{$($_.Value)}"
+            } else {
+                $_.Value
+            }
+        }} |
+        Out-String |
+        Write-Host -ForegroundColor Yellow
 }
 
 Task Init -depends Info {
@@ -115,7 +132,7 @@ Task Clean -depends Init {
 
 Task Compile -depends Init, Restore, Clean {
     $msbuild = $msbuild.Clone()
-    $msbuild.target = $msbuild["target.build"]
+    $msbuild.target = $msbuild["target.compile"]
     Invoke-MSBuild @msbuild
 }
 
@@ -125,7 +142,10 @@ Task NUnit-Probe -depends Restore {
         if ($nunit.x86 -eq $true) {
             $platform = "-x86"
         }
-        $nunit.runner = Get-ChildItem -Path $build.sourceDir -Include "nunit-console$platform.exe" -Recurse | Sort-Object | Select-Object -Last 1
+        $nunit.runner = Get-ChildItem -Path $build.sourceDir -Include "nunit-console$platform.exe" -Recurse |
+            Select-Object -ExpandProperty VersionInfo |
+            Sort-Object -Descending -Property ProductVersion |
+            Select-Object -Last 1 -ExpandProperty FileName
     }
 }
 
@@ -154,11 +174,11 @@ Task Test -depends NUnit-Probe, NUnit-Addin, Compile, Clean {
 Task Package -depends Test, Compile, Clean {
     Get-ChildItem -Path $build.sourceDir -Include *.nuspec -Recurse |% {
         $nuspec = $_
-        $csproj = [System.IO.Path]::ChangeExtension($nuspec, ".??proj")
-
         $pack = $pack.Clone()
-        if (Test-Path $csproj) {
-            $pack.nuspec = Resolve-Path $csproj
+        if ($pack.UseProjectFile) {
+            $projectFile = [System.IO.Path]::ChangeExtension($nuspec, ".??proj")
+            # we must resolve the path to remove the '?' characters
+            $pack.nuspec = Resolve-Path $projectFile
         } else {
             $pack.nuspec = $nuspec
         }
@@ -196,29 +216,35 @@ function Bind-Parameters {
         [Hashtable] $arguments
     )
 
+    # get all the parameters for the command
     $cmd = Get-Command -Name $command
     $parameters = $cmd.Parameters.Values.GetEnumerator()
-    $variables = Get-Variable -Name "$prefix*"
 
+    # process all the variables that have the same prefix
+    $variables = Get-Variable -Name "$prefix*"
     foreach ($parameter in $parameters) {
         $name = $parameter.Name
 
+        # check if a variable with the same name exists
         $variable = $variables |? { $_.Name -eq "$prefix.$name" }
         if ($variable) {
             $newValue = $variable.Value
             $prevValue = $arguments[$name]
+            # hashtables need special handling
             if ($newValue -is [Hashtable] -and $prevValue -is [Hashtable]) {
+                # append each key-value-pair vs replacing the hashtable
                 foreach ($kvp in $newValue.GetEnumerator()) {
                     $prevValue[$kvp.Key] = $kvp.Value
                 }
             } else {
+                # just assign the new value
                 $arguments[$name] = $newValue
             }
         }
 
+        # remove any arguments that cannot be null or empty
         $validateNotNullOrEmpty = @($parameter.Attributes |?{ [ValidateNotNullOrEmpty].IsInstanceOfType($_) }).Count -gt 0
         $validateNotNull = $validateNotNullOrEmpty -or (@($parameter.Attributes |?{ [ValidateNotNull].IsInstanceOfType($_) }).Count -gt 0)
-
         if ($arguments.ContainsKey($name)) {
             $value = $arguments[$name]
             if (($validateNotNull -and $value -eq $null) -or ($validateNotNullOrEmpty -and [String]::IsNullOrEmpty($value))) {
