@@ -9,17 +9,18 @@
 		<authors>NCode Group</authors>
 		<copyright>Copyright © $year$ NCode Group</copyright>
 
-		<iconUrl></iconUrl>
+		<iconUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/NCodeScanners32.png</iconUrl>
 		<projectUrl>https://github.com/NCodeGroup/NCode.Scanners</projectUrl>
 		<licenseUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/LICENSE.txt</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 
 		<summary></summary>
-		<description>This library provides a fluent API to search, filter, transform, and cache .NET types by reflecting over applications (using private-bin folders), directories, files, and AppDomains, and assemblies.</description>
-		<tags>type assembly scanner search refelection</tags>
+		<description>This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.</description>
+		<tags>type assembly scan search reflect reflection discover</tags>
 
 		<releaseNotes>
 			<![CDATA[
+Built on $timestamp$.
 v1.0.0 - Initial version.
 ]]>
 		</releaseNotes>

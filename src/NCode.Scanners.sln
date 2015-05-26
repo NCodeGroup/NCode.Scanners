@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3E5B2C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Test", "NCode.Scanners.Test\NCode.Scanners.Test.csproj", "{D220A56D-7F15-4BF0-8571-5E846539CA75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Examples", "NCode.Scanners.Examples\NCode.Scanners.Examples.csproj", "{7D6162BE-15F9-4398-8359-F709EDA0CA28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

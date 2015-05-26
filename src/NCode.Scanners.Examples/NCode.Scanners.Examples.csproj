@@ -4,19 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95C2F0BE-D661-4662-8037-BC02C4A3E70A}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{7D6162BE-15F9-4398-8359-F709EDA0CA28}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NCode.Scanners</RootNamespace>
-    <AssemblyName>NCode.Scanners</AssemblyName>
+    <RootNamespace>NCode.Scanners.Examples</RootNamespace>
+    <AssemblyName>NCode.Scanners.Examples</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,46 +22,37 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NCode.Scanners.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NCode.Scanners.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregateScanner.cs" />
-    <Compile Include="CacheScanner.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="DistinctScanner.cs" />
-    <Compile Include="ScanContext.cs" />
-    <Compile Include="FilterScanner.cs" />
-    <Compile Include="ObservableScanner.cs" />
-    <Compile Include="IFluentInterface.cs" />
-    <Compile Include="ImmutableScanner.cs" />
-    <Compile Include="UseParentScanner.cs" />
-    <Compile Include="ReflectionScanner.cs" />
-    <Compile Include="AppDomainScanner.cs" />
-    <Compile Include="Transforms.cs" />
-    <Compile Include="Scanner.cs" />
-    <Compile Include="ScannerExtensions.cs" />
-    <Compile Include="TransformScanner.cs" />
-    <Compile Include="TypeExtensions.cs" />
-    <Compile Include="ScannerFactory.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NCode.Scanners.nuspec" />
-    <None Include="packages.config" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NCode.Scanners\NCode.Scanners.csproj">
+      <Project>{95c2f0be-d661-4662-8037-bc02c4a3e70a}</Project>
+      <Name>NCode.Scanners</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
