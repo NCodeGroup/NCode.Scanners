@@ -108,9 +108,14 @@ Write-Host "PSScriptRoot: $PSScriptRoot" -ForegroundColor Yellow
 Write-Host "BuildFile: $buildFile" -ForegroundColor Yellow
 Write-Host "TaskList: $taskList" -ForegroundColor Yellow
 
-# don't wrap console output
-$uiBufferSize = $host.UI.RawUI.BufferSize
-$host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.Size(8192,50)
+# Update output buffer size to prevent clipping
+if ($Host -and $Host.UI -and $Host.UI.RawUI) {
+    $rawUI = $Host.UI.RawUI
+    $oldSize = $rawUI.BufferSize
+    $typeName = $oldSize.GetType().FullName
+    $newSize = New-Object $typeName (5000, $oldSize.Height)
+    $rawUI.BufferSize = $newSize
+}
 
 try {
     # first make sure NuGet exists
