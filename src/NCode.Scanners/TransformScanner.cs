@@ -22,15 +22,33 @@ using System.Linq;
 
 namespace NCode.Scanners
 {
+	/// <summary>
+	/// Represents an <see cref="IScanner{T}"/> that can project items into
+	/// another representation using a function delegate.
+	/// </summary>
+	/// <typeparam name="TIn">The type of item that this scanner uses from it's parent.</typeparam>
+	/// <typeparam name="TOut">The type of item that this scanner provides.</typeparam>
 	public interface ITransformScanner<out TIn, out TOut> : IScanner<TOut>, IUseParentScanner<TIn>
 	{
 		// nothing
 	}
 
+	/// <summary>
+	/// Provides the implementation of <see cref="ITransformScanner{TIn,TOut}"/> class.
+	/// </summary>
+	/// <typeparam name="TIn">The type of item that this scanner uses from it's parent.</typeparam>
+	/// <typeparam name="TOut">The type of item that this scanner provides.</typeparam>
 	public class TransformScanner<TIn, TOut> : UseParentScanner<TIn, TOut>, ITransformScanner<TIn, TOut>
 	{
 		private readonly Func<IScanContext, TIn, TOut> _transform;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TransformScanner{TIn, TOut}"/> class.
+		/// </summary>
+		/// <param name="parent">The parent <see cref="IScanner{T}"/> that this scanner retieves it's items from.</param>
+		/// <param name="transform">A transform function to apply to each item.</param>
+		/// <exception cref="ArgumentNullException">The <paramref name="parent"/> argument is a null.</exception>
+		/// <exception cref="ArgumentNullException">The <paramref name="transform"/> argument is a null.</exception>
 		public TransformScanner(IScanner<TIn> parent, Func<IScanContext, TIn, TOut> transform)
 			: base(parent)
 		{
@@ -46,10 +64,23 @@ namespace NCode.Scanners
 		}
 	}
 
+	/// <summary>
+	/// Provides the implementation of <see cref="ITransformScanner{TIn,TOut}"/>
+	/// class that flattens the resulting sequence.
+	/// </summary>
+	/// <typeparam name="TIn">The type of item that this scanner uses from it's parent.</typeparam>
+	/// <typeparam name="TOut">The type of item that this scanner provides.</typeparam>
 	public class TransformManyScanner<TIn, TOut> : UseParentScanner<TIn, TOut>, ITransformScanner<TIn, TOut>
 	{
 		private readonly Func<IScanContext, TIn, IEnumerable<TOut>> _transform;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TransformManyScanner{TIn, TOut}"/> class.
+		/// </summary>
+		/// <param name="parent">The parent <see cref="IScanner{T}"/> that this scanner retieves it's items from.</param>
+		/// <param name="transform">A transform function to apply to each item.</param>
+		/// <exception cref="ArgumentNullException">The <paramref name="parent"/> argument is a null.</exception>
+		/// <exception cref="ArgumentNullException">The <paramref name="transform"/> argument is a null.</exception>
 		public TransformManyScanner(IScanner<TIn> parent, Func<IScanContext, TIn, IEnumerable<TOut>> transform)
 			: base(parent)
 		{

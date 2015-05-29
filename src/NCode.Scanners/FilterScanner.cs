@@ -59,7 +59,7 @@ namespace NCode.Scanners
 	}
 
 	/// <summary>
-	/// Provides the default implementation for the <see cref="IFilterScanner{T}"/> interfaces.
+	/// Provides the default implementation for the <see cref="IFilterScanner{T}"/> interface.
 	/// </summary>
 	/// <typeparam name="T">The type of item that this scanner provides.</typeparam>
 	public class FilterScanner<T> : UseParentScanner<T>, IFilterScanner<T>
