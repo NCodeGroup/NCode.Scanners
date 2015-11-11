@@ -29,7 +29,8 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void FactoryParamsEmpty()
 		{
-			var aggregate = ScannerFactory.Aggregate<IScanner<string>>();
+			var factory = ScannerFactory.Create();
+			var aggregate = factory.Aggregate<IScanner<string>>();
 			Assert.IsNotNull(aggregate);
 			CollectionAssert.IsEmpty(aggregate.Scanners);
 		}
@@ -37,8 +38,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void FactoryParamsSingle()
 		{
-			var source1 = ScannerFactory.Immutable("a");
-			var aggregate = ScannerFactory.Aggregate(source1);
+			var factory = ScannerFactory.Create();
+			var source1 = factory.Immutable("a");
+			var aggregate = factory.Aggregate(source1);
 			Assert.IsNotNull(aggregate);
 			CollectionAssert.Contains(aggregate.Scanners, source1);
 		}
@@ -46,9 +48,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void FactoryParamsMultiple()
 		{
-			var source1 = ScannerFactory.Immutable("a");
-			var source2 = ScannerFactory.Immutable("b");
-			var aggregate = ScannerFactory.Aggregate(source1, source2);
+			var factory = ScannerFactory.Create();
+			var source1 = factory.Immutable("a");
+			var source2 = factory.Immutable("b");
+			var aggregate = factory.Aggregate(source1, source2);
 			Assert.IsNotNull(aggregate);
 			CollectionAssert.Contains(aggregate.Scanners, source1);
 			CollectionAssert.Contains(aggregate.Scanners, source2);
@@ -57,11 +60,13 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void AggregateAdd()
 		{
-			var aggregate = ScannerFactory.Aggregate<string>();
+			var factory = ScannerFactory.Create();
+
+			var aggregate = factory.Aggregate<string>();
 			Assert.IsNotNull(aggregate);
 			CollectionAssert.IsEmpty(aggregate.Scanners);
 
-			var scannerToAdd = ScannerFactory.Immutable("foo");
+			var scannerToAdd = factory.Immutable("foo");
 			aggregate.Scanners.Add(scannerToAdd);
 			Assert.AreEqual(1, aggregate.Scanners.Count);
 		}
@@ -69,8 +74,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ExtensionUsingSingleParam()
 		{
-			var scannerToAdd = ScannerFactory.Immutable(Assembly.GetExecutingAssembly());
-			var sourceScanner = ScannerFactory.CurrentDomain();
+			var factory = ScannerFactory.Create();
+			var scannerToAdd = factory.Immutable(Assembly.GetExecutingAssembly());
+			var sourceScanner = factory.CurrentDomain();
 			var aggregate = sourceScanner.Aggregate(scannerToAdd);
 			Assert.AreEqual(2, aggregate.Scanners.Count);
 		}
@@ -78,9 +84,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ExtensionUsingMultipleParams()
 		{
-			var scannerToAdd1 = ScannerFactory.Immutable(Assembly.GetExecutingAssembly());
-			var scannerToAdd2 = ScannerFactory.Immutable(Assembly.GetExecutingAssembly(), Assembly.GetEntryAssembly());
-			var sourceScanner = ScannerFactory.CurrentDomain();
+			var factory = ScannerFactory.Create();
+			var scannerToAdd1 = factory.Immutable(Assembly.GetExecutingAssembly());
+			var scannerToAdd2 = factory.Immutable(Assembly.GetExecutingAssembly(), Assembly.GetEntryAssembly());
+			var sourceScanner = factory.CurrentDomain();
 			var aggregate = sourceScanner.Aggregate(scannerToAdd1, scannerToAdd2);
 			Assert.AreEqual(3, aggregate.Scanners.Count);
 		}
@@ -88,10 +95,11 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ExtensionUsingEnumerable()
 		{
-			var scannerToAdd1 = ScannerFactory.Immutable(Assembly.GetExecutingAssembly());
-			var scannerToAdd2 = ScannerFactory.Immutable(Assembly.GetExecutingAssembly(), Assembly.GetEntryAssembly());
+			var factory = ScannerFactory.Create();
+			var scannerToAdd1 = factory.Immutable(Assembly.GetExecutingAssembly());
+			var scannerToAdd2 = factory.Immutable(Assembly.GetExecutingAssembly(), Assembly.GetEntryAssembly());
 			var scannersToAdd = new HashSet<IScanner<Assembly>> { scannerToAdd1, scannerToAdd2 };
-			var sourceScanner = ScannerFactory.CurrentDomain();
+			var sourceScanner = factory.CurrentDomain();
 			var aggregate = sourceScanner.Aggregate(scannersToAdd);
 			Assert.AreEqual(3, aggregate.Scanners.Count);
 		}
@@ -99,7 +107,8 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventAdd()
 		{
-			var aggregate = ScannerFactory.Aggregate<string>();
+			var factory = ScannerFactory.Create();
+			var aggregate = factory.Aggregate<string>();
 
 			var wasPropertyChanged = false;
 			aggregate.PropertyChanged += (sender, args) =>
@@ -115,7 +124,7 @@ namespace NCode.Scanners.Test
 				Assert.AreEqual(NotifyCollectionChangedAction.Reset, args.Action);
 			};
 
-			var scannerToAdd = ScannerFactory.Immutable("foo");
+			var scannerToAdd = factory.Immutable("foo");
 			aggregate.Scanners.Add(scannerToAdd);
 
 			Assert.IsTrue(wasPropertyChanged, "Checking if the PropertyChanged event was raised.");
@@ -125,8 +134,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventAddNested()
 		{
-			var aggregateInner = ScannerFactory.Aggregate<string>();
-			var aggregateOuter = ScannerFactory.Aggregate(aggregateInner);
+			var factory = ScannerFactory.Create();
+			var aggregateInner = factory.Aggregate<string>();
+			var aggregateOuter = factory.Aggregate(aggregateInner);
 
 			var wasPropertyChanged = false;
 			aggregateOuter.PropertyChanged += (sender, args) =>
@@ -142,7 +152,7 @@ namespace NCode.Scanners.Test
 				Assert.AreEqual(NotifyCollectionChangedAction.Reset, args.Action);
 			};
 
-			var scannerToAdd = ScannerFactory.Immutable("foo");
+			var scannerToAdd = factory.Immutable("foo");
 			aggregateInner.Scanners.Add(scannerToAdd);
 
 			Assert.IsTrue(wasPropertyChanged, "Checking if the PropertyChanged event was raised.");
@@ -152,8 +162,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventRemove()
 		{
-			var aggregateInner = ScannerFactory.Aggregate<string>();
-			var aggregateOuter = ScannerFactory.Aggregate(aggregateInner);
+			var factory = ScannerFactory.Create();
+			var aggregateInner = factory.Aggregate<string>();
+			var aggregateOuter = factory.Aggregate(aggregateInner);
 
 			var wasPropertyChanged = false;
 			aggregateOuter.PropertyChanged += (sender, args) =>
@@ -179,8 +190,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventClear()
 		{
-			var aggregateInner = ScannerFactory.Aggregate<string>();
-			var aggregateOuter = ScannerFactory.Aggregate(aggregateInner);
+			var factory = ScannerFactory.Create();
+			var aggregateInner = factory.Aggregate<string>();
+			var aggregateOuter = factory.Aggregate(aggregateInner);
 
 			var wasPropertyChanged = false;
 			aggregateOuter.PropertyChanged += (sender, args) =>

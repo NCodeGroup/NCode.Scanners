@@ -29,10 +29,12 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ScanCacheOnce()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			var expected = Enumerable.Range(1, 5).ToArray();
 
-			var innerMock = new Mock<IScanner<int>>(MockBehavior.Loose);
+			var innerMock = new Mock<IScanner<int>>(MockBehavior.Strict);
+			innerMock.SetupGet(_ => _.Factory).Returns(factory);
 			innerMock.Setup(_ => _.Scan(context)).Returns(expected);
 			var inner = innerMock.Object;
 
@@ -48,10 +50,12 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ScanAgainAfterInvalidate()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			var expected = Enumerable.Range(1, 5).ToArray();
 
-			var innerMock = new Mock<IScanner<int>>(MockBehavior.Loose);
+			var innerMock = new Mock<IScanner<int>>(MockBehavior.Strict);
+			innerMock.SetupGet(_ => _.Factory).Returns(factory);
 			innerMock.Setup(_ => _.Scan(context)).Returns(expected);
 			var inner = innerMock.Object;
 
@@ -75,10 +79,12 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ScanAgainAfterEvent()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			var expected = Enumerable.Range(1, 5).ToArray();
 
-			var innerMock = new Mock<IScanner<int>>(MockBehavior.Loose);
+			var innerMock = new Mock<IScanner<int>>(MockBehavior.Strict);
+			innerMock.SetupGet(_ => _.Factory).Returns(factory);
 			innerMock.Setup(_ => _.Scan(context)).Returns(expected);
 			var inner = innerMock.Object;
 

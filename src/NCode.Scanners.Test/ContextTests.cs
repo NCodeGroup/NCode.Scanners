@@ -26,15 +26,17 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void CreateContextIsNotNull()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			Assert.IsNotNull(context);
 		}
 
 		[Test]
 		public void CreateContextTwiceIsDifferent()
 		{
-			var context1 = ScannerFactory.CreateContext();
-			var context2 = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context1 = factory.CreateContext();
+			var context2 = factory.CreateContext();
 			Assert.AreNotSame(context1, context2);
 		}
 

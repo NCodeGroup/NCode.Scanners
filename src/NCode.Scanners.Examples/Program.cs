@@ -1,26 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace NCode.Scanners.Examples
 {
+	[Guid(MyGuid)]
 	internal static class Program
 	{
+		private const string MyGuid = "E0EB8734-36E6-4AEE-989D-5A7A40D87C72";
+
 		private static void Main()
 		{
-			SimpleExample();
+			UsingCecil();
+			UsingReflection();
 			SystemFilesFromGac();
 		}
 
-		private static void SimpleExample()
+		private static void UsingCecil()
 		{
-			var items = ScannerFactory
-				.AppFiles()           // returns IScanner<FileInfo>
+			var factory = ScannerFactory.Create();
+
+			var items = factory
+				.FilesInLocalPath()   // returns IScanner<FileInfo>
+				.ReadAssembly()       // returns IScanner<AssemblyDefinition>
+				.GetDefinedTypes()    // returns IScanner<TypeDefiniton>
+				.IsDefined((GuidAttribute attr) => attr.Value == MyGuid)
+				.Scan();              // returns IEnumerable<TypeDefiniton>
+
+			// ...
+			DisplayItems(items);
+		}
+		private static void UsingReflection()
+		{
+			var factory = ScannerFactory.Create();
+
+			var items = factory
+				.FilesInLocalPath()   // returns IScanner<FileInfo>
 				.GetAssemblyName()    // returns IScanner<AssemblyName>
 				.LoadAssembly()       // returns IScanner<Assembly>
 				.GetDefinedTypes()    // returns IScanner<TypeInfo>
-				.Scan(ScannerFactory.CreateContext());
+				.IsDefined((GuidAttribute attr) => attr.Value == MyGuid, false)
+				.Scan();              // returns IEnumerable<TypeInfo>
 
 			// ...
 			DisplayItems(items);
@@ -28,10 +49,13 @@ namespace NCode.Scanners.Examples
 
 		private static void SystemFilesFromGac()
 		{
-			var items = ScannerFactory
-				.Directory(@"C:\Windows\Microsoft.NET\assembly\GAC_MSIL", SearchOption.AllDirectories)
+			var factory = ScannerFactory.Create();
+
+			var dirs = new[] { @"C:\Windows\assembly\GAC_MSIL", @"C:\Windows\Microsoft.NET\assembly\GAC_MSIL" };
+			var items = factory
+				.FilesInDirectory(dirs, SearchOption.AllDirectories)
 				.Include(file => file.Name.StartsWith("System."))
-				.Scan(ScannerFactory.CreateContext());
+				.Scan();
 
 			// ...
 			DisplayItems(items);

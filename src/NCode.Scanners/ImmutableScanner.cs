@@ -37,13 +37,13 @@ namespace NCode.Scanners
 		/// <summary>
 		/// Returns an empty <see cref="IScanner{T}"/>.
 		/// </summary>
-		public static readonly IScanner<T> Empty = new ImmutableScanner<T>(Enumerable.Empty<T>());
-
 		/// <summary>
 		/// Intializes a new instance of the <see cref="ImmutableScanner{T}"/> class with the specified collection of items.
 		/// </summary>
+		/// <param name="factory">The <see cref="IScannerFactory"/> to use when creating objects.</param>
 		/// <param name="source">The collection of items that this scanner will return.</param>
-		public ImmutableScanner(IEnumerable<T> source)
+		public ImmutableScanner(IScannerFactory factory, IEnumerable<T> source)
+			: base(factory)
 		{
 			_source = source ?? Enumerable.Empty<T>();
 		}
@@ -52,5 +52,6 @@ namespace NCode.Scanners
 		{
 			return _source;
 		}
+
 	}
 }

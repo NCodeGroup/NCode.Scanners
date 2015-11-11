@@ -28,9 +28,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void Self()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var context = ScannerFactory.CreateContext();
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var context = factory.CreateContext();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			var before = input.Scan(context);
 			var transform = input.Transform(info => info);
@@ -42,9 +43,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void SelfWithContext()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var context = ScannerFactory.CreateContext();
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var context = factory.CreateContext();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			var before = input.Scan(context);
 			var transform = input.Transform((ctx, info) =>
@@ -60,9 +62,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void Many()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var context = ScannerFactory.CreateContext();
-			var input = ScannerFactory.AppDomain(appDomain);
+			var context = factory.CreateContext();
+			var input = factory.AppDomain(appDomain);
 
 			var before = input.Scan(context);
 			var transform = input.Transform(info => info.DefinedTypes);
@@ -75,9 +78,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ManyWithContext()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var context = ScannerFactory.CreateContext();
-			var input = ScannerFactory.AppDomain(appDomain);
+			var context = factory.CreateContext();
+			var input = factory.AppDomain(appDomain);
 
 			var before = input.Scan(context);
 			var transform = input.Transform((ctx, assembly) =>

@@ -25,6 +25,12 @@ namespace NCode.Scanners.Test.Dummy
 {
 	public class DummyScanner<T> : Scanner<T>
 	{
+		public DummyScanner()
+			: base(new DefaultScannerFactory())
+		{
+			// nothing
+		}
+
 		public void FireOnPropertyChanged(PropertyChangedEventArgs args)
 		{
 			OnPropertyChanged(args);
@@ -39,5 +45,6 @@ namespace NCode.Scanners.Test.Dummy
 		{
 			return Enumerable.Empty<T>();
 		}
+
 	}
 }

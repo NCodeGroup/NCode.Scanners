@@ -21,9 +21,9 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NCode.Scanners")]
-[assembly: AssemblyProduct("NCode.Scanners")]
-[assembly: AssemblyDescription("This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.")]
+[assembly: AssemblyTitle("NCode.Scanners.Cecil")]
+[assembly: AssemblyProduct("NCode.Scanners.Cecil")]
+[assembly: AssemblyDescription("This library provides additional scanners for 'NCode.Scanners' that uses 'Cecil' to inspect assemblies and types without loading them into the current AppDomain.")]
 
 [assembly: AssemblyCompany("NCode Group")]
 [assembly: AssemblyCopyright("Copyright © 2015 NCode Group")]
@@ -40,7 +40,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
-[assembly: Guid("862f6cdd-c206-46c8-a82f-a2f81ae2a386")]
+[assembly: Guid("3059f718-bc8c-46ce-9668-66da6df126f3")]
 
 [assembly: AssemblyVersion("1.0.0")]
 [assembly: AssemblyFileVersion("1.0.0")]

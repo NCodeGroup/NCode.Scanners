@@ -52,7 +52,7 @@ namespace NCode.Scanners
 		public TransformScanner(IScanner<TIn> parent, Func<IScanContext, TIn, TOut> transform)
 			: base(parent)
 		{
-			if (transform == null) throw new ArgumentNullException("transform");
+			if (transform == null) throw new ArgumentNullException(nameof(transform));
 			_transform = transform;
 		}
 
@@ -84,7 +84,7 @@ namespace NCode.Scanners
 		public TransformManyScanner(IScanner<TIn> parent, Func<IScanContext, TIn, IEnumerable<TOut>> transform)
 			: base(parent)
 		{
-			if (transform == null) throw new ArgumentNullException("transform");
+			if (transform == null) throw new ArgumentNullException(nameof(transform));
 			_transform = transform;
 		}
 

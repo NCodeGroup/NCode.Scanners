@@ -25,11 +25,12 @@ namespace NCode.Scanners.Test
 	public class ImmutableTests
 	{
 		[Test]
-		public void CollectionAsScanner()
+		public void AsScanner()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			var collection = new HashSet<string> { "a", "b", "c" };
-			var scanner = collection.AsImmutableScanner();
+			var scanner = collection.AsScanner(factory);
 			var items = scanner.Scan(context);
 			var expected = new[] { "a", "b", "c" };
 			CollectionAssert.AreEqual(expected, items);
@@ -38,8 +39,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void FromSingleParam()
 		{
-			var context = ScannerFactory.CreateContext();
-			var scanner = ScannerFactory.Immutable("foo");
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var scanner = factory.Immutable("foo");
 			var items = scanner.Scan(context);
 			var expected = new[] { "foo" };
 			CollectionAssert.AreEqual(expected, items);
@@ -48,8 +50,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void FromMultipleParams()
 		{
-			var context = ScannerFactory.CreateContext();
-			var scanner = ScannerFactory.Immutable("a", "b");
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var scanner = factory.Immutable("a", "b");
 			var items = scanner.Scan(context);
 			var expected = new[] { "a", "b" };
 			CollectionAssert.AreEqual(expected, items);

@@ -61,14 +61,21 @@ namespace NCode.Scanners
 	{
 		private readonly IScanner<TIn> _parent;
 
+		private static IScanner<TIn> NonNull(IScanner<TIn> parent)
+		{
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
+			return parent;
+		}
+
 		/// <summary>
 		/// Initializes a new instance of <see cref="UseParentScanner{TIn,TOut}"/> that uses the specified parent scanner.
 		/// </summary>
 		/// <param name="parent">The parent <see cref="IScanner{TIn}"/> that this child scanner uses.</param>
 		/// <exception cref="ArgumentNullException">The <paramref name="parent"/> argument is a null.</exception>
 		protected UseParentScanner(IScanner<TIn> parent)
+			: base(NonNull(parent).Factory)
 		{
-			if (parent == null) throw new ArgumentNullException("parent");
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
 			_parent = parent;
 
 			parent.PropertyChanged += HandlePropertyChanged;
@@ -102,11 +109,10 @@ namespace NCode.Scanners
 		/// <returns>An <see cref="IEnumerable{T}"/> that contains the items provided by the <see cref="Parent"/> scanner.</returns>
 		protected virtual IEnumerable<TIn> GetParentItemsOrEmpty(IScanContext context)
 		{
-			var parent = Parent ?? ImmutableScanner<TIn>.Empty;
+			var parent = Parent ?? context.Factory.Empty<TIn>();
 			var items = parent.Scan(context) ?? Enumerable.Empty<TIn>();
 			return items;
 		}
-
 	}
 
 	/// <summary>

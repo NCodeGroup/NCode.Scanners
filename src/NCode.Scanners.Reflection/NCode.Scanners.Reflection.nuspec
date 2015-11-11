@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+	<metadata minClientVersion="2.8">
+		<id>NCode.Scanners.Reflection</id>
+		<title>NCode.Scanners.Reflection</title>
+		<version>1.0.0</version>
+
+		<owners>NCode Group</owners>
+		<authors>NCode Group</authors>
+		<copyright>Copyright © $year$ NCode Group</copyright>
+
+		<iconUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/NCodeScanners32.png</iconUrl>
+		<projectUrl>https://github.com/NCodeGroup/NCode.Scanners</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/LICENSE.txt</licenseUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+		<summary></summary>
+		<description>This library provides additional scanners for 'NCode.Scanners' that uses 'Reflection' to inspect assemblies and types which causes them to the loaded into the current AppDomain.</description>
+		<tags>type assembly scan search reflect reflection discover</tags>
+
+		<releaseNotes>
+			<![CDATA[
+Built on $timestamp$.
+v1.0.0 - Initial version.
+]]>
+		</releaseNotes>
+	</metadata>
+	<files>
+		<file src="COPYRIGHT.txt" />
+		<file src="LICENSE.txt" />
+		<file src="README.md" />
+	</files>
+</package>

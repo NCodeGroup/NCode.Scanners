@@ -28,7 +28,8 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void CurrentDomain()
 		{
-			var scanner = ScannerFactory.CurrentDomain();
+			var factory = ScannerFactory.Create();
+			var scanner = factory.CurrentDomain();
 			var expected = AppDomain.CurrentDomain;
 			Assert.AreSame(expected, scanner.AppDomain);
 		}
@@ -36,11 +37,13 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void LoadedAssembies()
 		{
+			var factory = ScannerFactory.Create();
+
 			var appDomain = AppDomain.CurrentDomain;
-			var scanner = ScannerFactory.AppDomain(appDomain);
+			var scanner = factory.AppDomain(appDomain);
 			Assert.AreSame(appDomain, scanner.AppDomain);
 
-			var context = ScannerFactory.CreateContext();
+			var context = factory.CreateContext();
 			var items = scanner.Scan(context);
 
 			var expected = appDomain.GetAssemblies();
@@ -50,9 +53,11 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventLoadAssembly()
 		{
+			var factory = ScannerFactory.Create();
+
 			var appDomain = AppDomain.CurrentDomain;
-			var scanner = ScannerFactory.AppDomain(appDomain);
-			var context = ScannerFactory.CreateContext();
+			var scanner = factory.AppDomain(appDomain);
+			var context = factory.CreateContext();
 
 			const string assemblyName = "System.ComponentModel.Composition.Registration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
 

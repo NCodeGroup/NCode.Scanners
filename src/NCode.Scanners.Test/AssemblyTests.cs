@@ -40,8 +40,9 @@ namespace NCode.Scanners.Test
 			var loaded = AppDomain.CurrentDomain.GetAssemblies();
 			Dump(loaded);
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(loaded)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(loaded)
 				.GetDefinedTypes()
 				.Scan(context)
 				.ToArray();
@@ -60,8 +61,9 @@ namespace NCode.Scanners.Test
 				.ToArray();
 			Dump(loaded);
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(loaded)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(loaded)
 				.GetExportedTypes()
 				.Scan(context)
 				.ToArray();
@@ -74,8 +76,9 @@ namespace NCode.Scanners.Test
 		{
 			var assemby = Assembly.GetExecutingAssembly();
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(assemby)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(assemby)
 				.GetDefinedTypes()
 				.Scan(context)
 				.ToArray();
@@ -87,8 +90,9 @@ namespace NCode.Scanners.Test
 		{
 			var assemby = Assembly.GetExecutingAssembly();
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(assemby)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(assemby)
 				.GetExportedTypes()
 				.Scan(context)
 				.ToArray();
@@ -101,8 +105,9 @@ namespace NCode.Scanners.Test
 			var assembly = Assembly.GetExecutingAssembly();
 			var assemblyName = assembly.GetName();
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(assemblyName)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(assemblyName)
 				.LoadAssembly()
 				.GetDefinedTypes()
 				.Scan(context)
@@ -116,8 +121,9 @@ namespace NCode.Scanners.Test
 			var assembly = Assembly.GetExecutingAssembly();
 			var assemblyName = assembly.GetName();
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.Immutable(assemblyName)
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
+			var items = factory.Immutable(assemblyName)
 				.LoadAssembly()
 				.GetExportedTypes()
 				.Scan(context)

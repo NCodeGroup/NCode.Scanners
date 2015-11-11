@@ -56,14 +56,16 @@ namespace NCode.Scanners
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ObservableScanner{T, TCollection}"/> class with the specified observable collection.
 		/// </summary>
+		/// <param name="factory">The <see cref="IScannerFactory"/> to use when creating objects.</param>
 		/// <param name="collection">The observable collection to use.</param>
 		/// <exception cref="ArgumentNullException">The <paramref name="collection"/> argument is a null.</exception>
-		public ObservableScanner(TCollection collection)
+		public ObservableScanner(IScannerFactory factory, TCollection collection)
+			: base(factory)
 		{
-			if (collection == null) throw new ArgumentNullException("collection");
-			_collection = collection;
+			if (collection == null) throw new ArgumentNullException(nameof(collection));
 
 			collection.CollectionChanged += HandleCollectionChanged;
+			_collection = collection;
 		}
 
 		private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)

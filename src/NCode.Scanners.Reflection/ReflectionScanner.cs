@@ -56,7 +56,7 @@ namespace NCode.Scanners
 			: base(parent)
 		{
 			if (reflectionContext == null)
-				throw new ArgumentNullException("reflectionContext");
+				throw new ArgumentNullException(nameof(reflectionContext));
 
 			_reflectionContext = reflectionContext;
 		}
@@ -139,6 +139,6 @@ namespace NCode.Scanners
 		{
 			return ReflectionContext.MapType(item);
 		}
-	}
 
+	}
 }

@@ -31,13 +31,14 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void SingleInclude()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			var filter = input
 				.Include(type => type.IsInterface);
 
-			var context = ScannerFactory.CreateContext();
+			var context = factory.CreateContext();
 			var items = filter.Scan(context).ToArray();
 
 			var contains1 = items.Any(type => type.IsInterface);
@@ -49,14 +50,15 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void MultipleInclude()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			var filter = input
 				.Include(type => type.IsInterface)
 				.Include(type => type.IsClass);
 
-			var context = ScannerFactory.CreateContext();
+			var context = factory.CreateContext();
 			var items = filter.Scan(context).ToArray();
 
 			var contains1 = items.Any(type => type.IsInterface);
@@ -69,19 +71,21 @@ namespace NCode.Scanners.Test
 		[ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "At least one include must exist before an exclude can be added.")]
 		public void ExcludeFailsWithNoInclude()
 		{
-			var scanner = ScannerFactory.CurrentDomain();
+			var factory = ScannerFactory.Create();
+			var scanner = factory.CurrentDomain();
 			scanner.Exclude(asm => asm.IsDynamic);
 
-			var context = ScannerFactory.CreateContext();
+			var context = factory.CreateContext();
 			scanner.Scan(context);
 		}
 
 		[Test]
 		public void IncludeThenExclude()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			var before = input
 				.Include(type => type.IsInterface)
@@ -117,11 +121,12 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void IsDefined()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain);
+			var input = factory.AppDomain(appDomain);
 
-			var filter = input.IsDefined(typeof(GuidAttribute));
-			var context = ScannerFactory.CreateContext();
+			var filter = input.IsDefined(typeof(GuidAttribute), false);
+			var context = factory.CreateContext();
 			var items = filter.Scan(context).ToArray();
 
 			CollectionAssert.IsNotEmpty(items);
@@ -130,28 +135,30 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void IsDefinedSpecific()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain);
+			var input = factory.AppDomain(appDomain);
 
 			var assembly = Assembly.GetExecutingAssembly();
 			var guid = Marshal.GetTypeLibGuidForAssembly(assembly);
 
-			var filter = input.IsDefined((GuidAttribute attr) => Guid.Parse(attr.Value) == guid);
-			var context = ScannerFactory.CreateContext();
+			var filter = input.IsDefined((GuidAttribute attr) => Guid.Parse(attr.Value) == guid, false);
+			var context = factory.CreateContext();
 			var item = filter.Scan(context).Single();
 
 			Assert.AreSame(assembly, item);
 		}
 
 		[Test]
-		public void IsType()
+		public void IsAssignableFrom()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
-			var filter = input.IsType<IDisposable>();
+			var filter = input.IsAssignableFrom<IDisposable>();
 
-			var context = ScannerFactory.CreateContext();
+			var context = factory.CreateContext();
 			var items = filter.Scan(context).ToArray();
 
 			var all = items.All(type => typeof(IDisposable).IsAssignableFrom(type));
@@ -161,8 +168,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventInclude()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			IFilterScanner<TypeInfo> filter = new FilterScanner<TypeInfo>(input);
 
@@ -188,8 +196,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventExclude()
 		{
+			var factory = ScannerFactory.Create();
 			var appDomain = AppDomain.CurrentDomain;
-			var input = ScannerFactory.AppDomain(appDomain).GetDefinedTypes();
+			var input = factory.AppDomain(appDomain).GetDefinedTypes();
 
 			IFilterScanner<TypeInfo> filter = new FilterScanner<TypeInfo>(input);
 

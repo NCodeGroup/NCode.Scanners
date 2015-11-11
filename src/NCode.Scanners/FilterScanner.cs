@@ -42,7 +42,7 @@ namespace NCode.Scanners
 		/// <returns>The <see cref="IFilterScanner{T}"/> fluent interface.</returns>
 		/// <exception cref="ArgumentNullException">The <paramref name="predicate"/>
 		/// argument is a null.</exception>
-		IFilterScanner<T> Include(Func<T, bool> predicate);
+		IFilterScanner<T> Include(Func<IScanContext, T, bool> predicate);
 
 		/// <summary>
 		/// Fluent method that adds additional function predicates to <c>include</c>
@@ -55,7 +55,7 @@ namespace NCode.Scanners
 		/// argument is a null.</exception>
 		/// <exception cref="InvalidOperationException">Adding an exclude without any
 		/// includes.</exception>
-		IFilterScanner<T> Exclude(Func<T, bool> predicate);
+		IFilterScanner<T> Exclude(Func<IScanContext, T, bool> predicate);
 	}
 
 	/// <summary>
@@ -64,8 +64,8 @@ namespace NCode.Scanners
 	/// <typeparam name="T">The type of item that this scanner provides.</typeparam>
 	public class FilterScanner<T> : UseParentScanner<T>, IFilterScanner<T>
 	{
-		private readonly IList<Func<T, bool>> _includeList;
-		private readonly IList<Func<T, bool>> _excludeList;
+		private readonly IList<Func<IScanContext, T, bool>> _includeList;
+		private readonly IList<Func<IScanContext, T, bool>> _excludeList;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FilterScanner{T}"/> class
@@ -76,13 +76,13 @@ namespace NCode.Scanners
 		public FilterScanner(IScanner<T> parent)
 			: base(parent)
 		{
-			_includeList = new List<Func<T, bool>>();
-			_excludeList = new List<Func<T, bool>>();
+			_includeList = new List<Func<IScanContext, T, bool>>();
+			_excludeList = new List<Func<IScanContext, T, bool>>();
 		}
 
 		#region IFilterScanner<T> Members
 
-		public virtual IFilterScanner<T> Include(Func<T, bool> predicate)
+		public virtual IFilterScanner<T> Include(Func<IScanContext, T, bool> predicate)
 		{
 			if (predicate == null) throw new ArgumentNullException("predicate");
 
@@ -94,7 +94,7 @@ namespace NCode.Scanners
 			return this;
 		}
 
-		public virtual IFilterScanner<T> Exclude(Func<T, bool> predicate)
+		public virtual IFilterScanner<T> Exclude(Func<IScanContext, T, bool> predicate)
 		{
 			if (predicate == null) throw new ArgumentNullException("predicate");
 			if (_includeList.Count == 0) throw new InvalidOperationException("At least one include must exist before an exclude can be added.");
@@ -115,11 +115,12 @@ namespace NCode.Scanners
 		{
 			var items = GetParentItemsOrEmpty(context);
 			var result = items
-				.Where(item => _includeList.Any(predicate => predicate(item)))
-				.Where(item => !_excludeList.Any(predicate => predicate(item)));
+				.Where(item => _includeList.Any(predicate => predicate(context, item)))
+				.Where(item => !_excludeList.Any(predicate => predicate(context, item)));
 			return result;
 		}
 
 		#endregion
+
 	}
 }

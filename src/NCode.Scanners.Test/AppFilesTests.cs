@@ -29,8 +29,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ExecutingAssembly()
 		{
-			var context = ScannerFactory.CreateContext();
-			var scanner = ScannerFactory.AppFiles();
+			var factory = ScannerFactory.Create();
+
+			var context = factory.CreateContext();
+			var scanner = factory.FilesInLocalPath();
 			var files = scanner.Scan(context).ToArray();
 			CollectionAssert.IsNotEmpty(files);
 
@@ -42,11 +44,13 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ExecutingAssemblyByFileDefinedTypes()
 		{
+			var factory = ScannerFactory.Create();
+
 			var assemby = Assembly.GetExecutingAssembly();
 			var fileName = Path.GetFileName(assemby.Location);
 
-			var context = ScannerFactory.CreateContext();
-			var items = ScannerFactory.AppFiles()
+			var context = factory.CreateContext();
+			var items = factory.FilesInLocalPath()
 				.Include(file => file.Name == fileName)
 				.GetAssemblyName()
 				.LoadAssembly()

@@ -27,7 +27,7 @@ namespace NCode.Scanners
 	/// A fluent interface that is used to scan for items of type <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of item that this scanner provides.</typeparam>
-	public interface IScanner<out T> : INotifyPropertyChanged, INotifyCollectionChanged, IFluentInterface
+	public interface IScanner<out T> : ISupportFactory, INotifyPropertyChanged, INotifyCollectionChanged, IFluentInterface
 	{
 		/// <summary>
 		/// Retrieves the collection of items that this scanner provides.
@@ -43,6 +43,22 @@ namespace NCode.Scanners
 	/// <typeparam name="T">The type of item that this scanner provides.</typeparam>
 	public abstract class Scanner<T> : IScanner<T>
 	{
+		/// <summary>
+		/// Initializes a new instance of <see cref="Scanner{T}"/> that uses the specified factory.
+		/// </summary>
+		/// <param name="factory">The <see cref="IScannerFactory"/> to use when creating objects.</param>
+		protected Scanner(IScannerFactory factory)
+		{
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			Factory = factory;
+		}
+
+		#region ISupportFactory Members
+
+		public virtual IScannerFactory Factory { get; }
+
+		#endregion
+
 		#region IScanner<T> Members
 
 		public abstract IEnumerable<T> Scan(IScanContext context);
@@ -76,8 +92,7 @@ namespace NCode.Scanners
 		protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
 		{
 			var handler = PropertyChanged;
-			if (handler == null) return;
-			handler(this, args);
+			handler?.Invoke(this, args);
 		}
 
 		#endregion
@@ -108,8 +123,7 @@ namespace NCode.Scanners
 		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
 		{
 			var handler = CollectionChanged;
-			if (handler == null) return;
-			handler(this, args);
+			handler?.Invoke(this, args);
 		}
 
 		#endregion

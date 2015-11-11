@@ -42,28 +42,36 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateScanner.cs" />
+    <Compile Include="ScannerExtensions.Aggregate.cs" />
     <Compile Include="CacheScanner.cs" />
+    <Compile Include="ScannerExtensions.Cache.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DistinctScanner.cs" />
+    <Compile Include="ScannerExtensions.Distinct.cs" />
+    <Compile Include="ScannerExtensions.Filter.cs" />
     <Compile Include="ScanContext.cs" />
     <Compile Include="FilterScanner.cs" />
     <Compile Include="ObservableScanner.cs" />
     <Compile Include="IFluentInterface.cs" />
     <Compile Include="ImmutableScanner.cs" />
+    <Compile Include="ScannerCollection.cs" />
+    <Compile Include="Options\TransformIgnoreException.cs" />
+    <Compile Include="ScannerFactory.Immutable.cs" />
+    <Compile Include="ScannerFactory.Observable.cs" />
+    <Compile Include="ScannerExtensions.Transform.cs" />
     <Compile Include="UseParentScanner.cs" />
-    <Compile Include="ReflectionScanner.cs" />
-    <Compile Include="AppDomainScanner.cs" />
     <Compile Include="Transforms.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="ScannerExtensions.cs" />
     <Compile Include="TransformScanner.cs" />
-    <Compile Include="TypeExtensions.cs" />
     <Compile Include="ScannerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NCode.Scanners.nuspec" />
     <None Include="packages.config" />
+    <Compile Include="ScannerFactory.FileInfo.cs" />
+    <Compile Include="ScannerFactory.Aggregate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -33,7 +33,7 @@ namespace NCode.Scanners
 	public interface IAppDomainScanner : IScanner<Assembly>
 	{
 		/// <summary>
-		/// Contains the <see cref="AppDomain"/> that this scanner uses to retieves
+		/// Contains the <see cref="AppDomain"/> that this scanner uses to retieve
 		/// it's <see cref="Assembly"/> objects from.
 		/// </summary>
 		/// <remarks>
@@ -57,10 +57,10 @@ namespace NCode.Scanners
 		/// </summary>
 		/// <param name="appDomain">The <see cref="AppDomain"/> that this scanner uses to retieves it's <see cref="Assembly"/> objects from.</param>
 		/// <exception cref="ArgumentNullException">The <paramref name="appDomain"/> argument is a null.</exception>
-		public AppDomainScanner(AppDomain appDomain)
+		public AppDomainScanner(IScannerFactory factory, AppDomain appDomain)
+			: base(factory)
 		{
-			if (appDomain == null)
-				throw new ArgumentNullException("appDomain");
+			if (appDomain == null) throw new ArgumentNullException(nameof(appDomain));
 
 			_appDomain = appDomain;
 			appDomain.AssemblyLoad += HandleAssemblyLoad;

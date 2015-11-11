@@ -48,8 +48,8 @@ namespace NCode.Scanners
 		public static IEnumerable<TItem> IsType<TItem>(this IEnumerable<TItem> source, Type type, bool expected = true)
 			where TItem : Type
 		{
-			if (source == null) throw new ArgumentNullException("source");
-			if (type == null) throw new ArgumentNullException("type");
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (type == null) throw new ArgumentNullException(nameof(type));
 			return source.Where(iter => type.IsAssignableFrom(iter) == expected);
 		}
 
@@ -74,8 +74,9 @@ namespace NCode.Scanners
 		public static IEnumerable<TItem> IsDefined<TItem>(this IEnumerable<TItem> source, Type attributeType, bool inherit = true)
 			where TItem : ICustomAttributeProvider
 		{
-			if (source == null) throw new ArgumentNullException("source");
-			if (attributeType == null) throw new ArgumentNullException("attributeType");
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (attributeType == null) throw new ArgumentNullException(nameof(attributeType));
+
 			return source.Where(iter => iter.IsDefined(attributeType, inherit));
 		}
 
@@ -83,18 +84,26 @@ namespace NCode.Scanners
 			where TItem : ICustomAttributeProvider
 			where TAttribute : Attribute
 		{
-			if (source == null) throw new ArgumentNullException("source");
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
 			var attributeType = typeof(TAttribute);
-			return source.Where(item => item.GetCustomAttributes(attributeType, inherit).OfType<TAttribute>().Any(attr => predicate(item, attr)));
+
+			return source.Where(item => item
+				.GetCustomAttributes(attributeType, inherit)
+				.OfType<TAttribute>()
+				.Any(attr => predicate(item, attr)));
 		}
 
 		public static IEnumerable<TItem> IsDefined<TItem, TAttribute>(this IEnumerable<TItem> source, Func<TAttribute, bool> predicate, bool inherit = true)
 			where TItem : ICustomAttributeProvider
 			where TAttribute : Attribute
 		{
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
 			Func<TItem, TAttribute, bool> adapter = (item, attr) => predicate(attr);
+
 			return IsDefined(source, adapter, inherit);
 		}
 

@@ -28,8 +28,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventAdd()
 		{
+			var factory = ScannerFactory.Create();
 			var collection = new ObservableCollection<string>();
-			var scanner = ScannerFactory.Observable(collection);
+			var scanner = factory.Observable(collection);
 
 			var wasPropertyChanged = false;
 			scanner.PropertyChanged += (sender, args) =>
@@ -54,8 +55,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventRemove()
 		{
+			var factory = ScannerFactory.Create();
 			var collection = new ObservableCollection<string> { "foo" };
-			var scanner = ScannerFactory.Observable(collection);
+			var scanner = factory.Observable(collection);
 
 			var wasPropertyChanged = false;
 			scanner.PropertyChanged += (sender, args) =>
@@ -81,8 +83,9 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void EventClear()
 		{
+			var factory = ScannerFactory.Create();
 			var collection = new ObservableCollection<string> { "foo" };
-			var scanner = ScannerFactory.Observable(collection);
+			var scanner = factory.Observable(collection);
 
 			var wasPropertyChanged = false;
 			scanner.PropertyChanged += (sender, args) =>

@@ -31,9 +31,10 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ParentIsNull()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 
-			var input = ScannerFactory.Immutable("a", "b", "c");
+			var input = factory.Immutable("a", "b", "c");
 			var useParentMock = new Mock<UseParentScanner<string>>(input);
 			useParentMock.SetupGet(_ => _.Parent).Returns((IScanner<string>)null);
 			var useParent = useParentMock.Object;
@@ -46,13 +47,15 @@ namespace NCode.Scanners.Test
 		[Test]
 		public void ParentScanIsNull()
 		{
-			var context = ScannerFactory.CreateContext();
+			var factory = ScannerFactory.Create();
+			var context = factory.CreateContext();
 
-			var parentMock = new Mock<IScanner<string>>();
+			var parentMock = new Mock<IScanner<string>>(MockBehavior.Strict);
+			parentMock.SetupGet(_ => _.Factory).Returns(factory);
 			parentMock.Setup(_ => _.Scan(context)).Returns((IEnumerable<string>)null);
 			var parent = parentMock.Object;
 
-			var useParentMock = new Mock<UseParentScanner<string>>(parent);
+			var useParentMock = new Mock<UseParentScanner<string>>(parent) { CallBase = true };
 			var useParent = useParentMock.Object;
 
 			var items = useParent.Scan(context);

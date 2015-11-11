@@ -83,6 +83,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NCode.Scanners.Reflection\NCode.Scanners.Reflection.csproj">
+      <Project>{5ed1c596-e2d1-4831-8eb9-78eb42e1696d}</Project>
+      <Name>NCode.Scanners.Reflection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NCode.Scanners\NCode.Scanners.csproj">
       <Project>{95c2f0be-d661-4662-8037-bc02c4a3e70a}</Project>
       <Name>NCode.Scanners</Name>

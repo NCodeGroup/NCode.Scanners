@@ -16,6 +16,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace NCode.Scanners
@@ -33,7 +34,7 @@ namespace NCode.Scanners
 	/// Represents a context that can provide additional options at runtime to
 	/// the <see cref="IScanner{T}.Scan"/> method.
 	/// </summary>
-	public interface IScanContext
+	public interface IScanContext : ISupportFactory
 	{
 		/// <summary>
 		/// Gets a collection that allows storing and retrieving <see cref="IScanOption"/> objects by their type.
@@ -44,20 +45,30 @@ namespace NCode.Scanners
 	/// <summary>
 	/// Provides the default implementation for <see cref="IScanContext"/>.
 	/// </summary>
-	public class ScanContext : IScanContext
+	internal class ScanContext : IScanContext
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ScanContext"/> class.
 		/// </summary>
-		public ScanContext()
+		public ScanContext(IScannerFactory factory)
 		{
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+
+			Factory = factory;
 			Options = new KeyedByTypeCollection<IScanOption>();
 		}
 
-		#region IScanContext Members
+		#region ISupportFactory Members
 
-		public virtual KeyedByTypeCollection<IScanOption> Options { get; private set; }
+		public virtual IScannerFactory Factory { get; }
 
 		#endregion
+
+		#region IScanContext Members
+
+		public virtual KeyedByTypeCollection<IScanOption> Options { get; }
+
+		#endregion
+
 	}
 }
