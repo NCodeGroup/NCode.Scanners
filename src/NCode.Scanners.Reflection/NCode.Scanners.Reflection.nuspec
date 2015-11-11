@@ -22,7 +22,7 @@
 		<releaseNotes>Built on $timestamp$.</releaseNotes>
 
 		<dependencies>
-			<dependency id="NCode.Scanners" />
+			<dependency id="NCode.Scanners" version="1.0" />
 		</dependencies>
 	</metadata>
 
