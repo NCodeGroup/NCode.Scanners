@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners", "NCode.Scanners\NCode.Scanners.csproj", "{95C2F0BE-D661-4662-8037-BC02C4A3E70A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3E5B2C86-B5D6-4A90-B879-725D0FD40313}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.config = .nuget\NuGet.config
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Test", "NCode.Scanners.Test\NCode.Scanners.Test.csproj", "{D220A56D-7F15-4BF0-8571-5E846539CA75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Examples", "NCode.Scanners.Examples\NCode.Scanners.Examples.csproj", "{7D6162BE-15F9-4398-8359-F709EDA0CA28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Cecil", "NCode.Scanners.Cecil\NCode.Scanners.Cecil.csproj", "{3059F718-BC8C-46CE-9668-66DA6DF126F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCode.Scanners.Reflection", "NCode.Scanners.Reflection\NCode.Scanners.Reflection.csproj", "{5ED1C596-E2D1-4831-8EB9-78EB42E1696D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95C2F0BE-D661-4662-8037-BC02C4A3E70A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C2F0BE-D661-4662-8037-BC02C4A3E70A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C2F0BE-D661-4662-8037-BC02C4A3E70A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C2F0BE-D661-4662-8037-BC02C4A3E70A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D220A56D-7F15-4BF0-8571-5E846539CA75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D6162BE-15F9-4398-8359-F709EDA0CA28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3059F718-BC8C-46CE-9668-66DA6DF126F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3059F718-BC8C-46CE-9668-66DA6DF126F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3059F718-BC8C-46CE-9668-66DA6DF126F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3059F718-BC8C-46CE-9668-66DA6DF126F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED1C596-E2D1-4831-8EB9-78EB42E1696D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED1C596-E2D1-4831-8EB9-78EB42E1696D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED1C596-E2D1-4831-8EB9-78EB42E1696D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED1C596-E2D1-4831-8EB9-78EB42E1696D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

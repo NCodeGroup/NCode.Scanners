@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+
+	<metadata minClientVersion="2.8">
+		<id>NCode.Scanners</id>
+		<title>NCode.Scanners</title>
+		<version>1.0.0</version>
+
+		<owners>NCode Group</owners>
+		<authors>NCode Group</authors>
+		<copyright>Copyright © 2015 NCode Group</copyright>
+
+		<iconUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/NCodeScanners32.png</iconUrl>
+		<projectUrl>https://github.com/NCodeGroup/NCode.Scanners</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.Scanners/master/LICENSE.txt</licenseUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+		<summary></summary>
+		<description>This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.</description>
+		<tags>type assembly scan search reflect reflection discover</tags>
+
+		<releaseNotes>Built on $timestamp$.</releaseNotes>
+	</metadata>
+
+	<files>
+		<file src="COPYRIGHT.txt" />
+		<file src="LICENSE.txt" />
+		<file src="README.md" />
+	</files>
+
+</package>
