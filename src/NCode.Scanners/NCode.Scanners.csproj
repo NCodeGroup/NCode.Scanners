@@ -70,21 +70,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\README.md">
-      <Link>README.md</Link>
-    </None>
     <None Include="NCode.Scanners.nuspec" />
     <None Include="packages.config" />
     <Compile Include="ScannerFactory.FileInfo.cs" />
     <Compile Include="ScannerFactory.Aggregate.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\COPYRIGHT.txt">
-      <Link>COPYRIGHT.txt</Link>
-    </None>
-    <None Include="..\..\LICENSE.txt">
-      <Link>LICENSE.txt</Link>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
