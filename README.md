@@ -1,16 +1,39 @@
 # NCode.Scanners
 This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.
 
+# NCode.Scanners.Cecil
+This library provides additional scanners for 'NCode.Scanners' that uses 'Cecil' to inspect assemblies and types without loading them into the current AppDomain.
+
+# NCode.Scanners.Reflection
+This library provides additional scanners for 'NCode.Scanners' that uses 'Reflection' to inspect assemblies and types which causes them to the loaded into the current AppDomain.
+
 ## Examples
-	private static void SimpleExample()
+	private static void UsingCecil()
 	{
-		var items = ScannerFactory
-			.AppFiles()           // returns IScanner<FileInfo>
+		var factory = ScannerFactory.Create();
+
+		var items = factory
+			.FilesInLocalPath()   // returns IScanner<FileInfo>
+			.ReadAssembly()       // returns IScanner<AssemblyDefinition>
+			.GetDefinedTypes()    // returns IScanner<TypeDefiniton>
+			.IsDefined((GuidAttribute attr) => attr.Value == MyGuid)
+			.Scan();              // returns IEnumerable<TypeDefiniton>
+
+		// ...
+		DisplayItems(items);
+	}
+
+	private static void UsingReflection()
+	{
+		var factory = ScannerFactory.Create();
+
+		var items = factory
+			.FilesInLocalPath()   // returns IScanner<FileInfo>
 			.GetAssemblyName()    // returns IScanner<AssemblyName>
 			.LoadAssembly()       // returns IScanner<Assembly>
 			.GetDefinedTypes()    // returns IScanner<TypeInfo>
-			.Scan(ScannerFactory.CreateContext())
-			.ToArray();
+			.IsDefined((GuidAttribute attr) => attr.Value == MyGuid, false)
+			.Scan();              // returns IEnumerable<TypeInfo>
 
 		// ...
 		DisplayItems(items);
@@ -18,11 +41,13 @@ This library provides a fluent API to search, filter, transform, and cache .NET 
 
 	private static void SystemFilesFromGac()
 	{
-		var items = ScannerFactory
-			.Directory(@"C:\Windows\Microsoft.NET\assembly\GAC_MSIL", SearchOption.AllDirectories)
+		var factory = ScannerFactory.Create();
+
+		var dirs = new[] { @"C:\Windows\assembly\GAC_MSIL", @"C:\Windows\Microsoft.NET\assembly\GAC_MSIL" };
+		var items = factory
+			.FilesInDirectory(dirs, SearchOption.AllDirectories)
 			.Include(file => file.Name.StartsWith("System."))
-			.Scan(ScannerFactory.CreateContext())
-			.ToArray();
+			.Scan();
 
 		// ...
 		DisplayItems(items);
