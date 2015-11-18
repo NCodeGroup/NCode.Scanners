@@ -5,7 +5,7 @@ This library provides a fluent API to search, filter, transform, and cache .NET 
 * [Scanner Factory](#Scanner Factory)
 * [Scanner Context](#Scanner Context)
 * [Aggregate Scanner](#Aggregate Scanner)
-* [Cache Scanner](#Cache Scanner)
+* [Cache Scanner][]
 
 ## Scanner Interfaces
 Provides a fluent interface that is used to scan for items of a certain type.
