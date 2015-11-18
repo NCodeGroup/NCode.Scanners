@@ -1,11 +1,11 @@
 # NCode.Scanners
 This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.
 
-* [Scanner Interfaces](#Scanner-Interfaces)
-* [Scanner Factory](#Scanner-Factory)
-* [Scanner Context](#Scanner-Context)
-* [Aggregate Scanner](#Aggregate-Scanner)
-* [Cache Scanner](#Cache-Scanner)
+* [Scanner Interfaces](#scanner-interfaces)
+* [Scanner Factory](#scanner-factory)
+* [Scanner Context](#scanner-context)
+* [Aggregate Scanner](#aggregate-scanner)
+* [Cache Scanner](#cache-scanner)
 
 ## Scanner Interfaces
 Provides a fluent interface that is used to scan for items of a certain type.
