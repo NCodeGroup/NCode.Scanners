@@ -1,3 +1,13 @@
+# Deprecated
+
+> **This library is retired.** It is obsolete, and nothing in .NET replaces it directly.
+>
+> - It scanned types across `AppDomain`s, private-bin folders and assemblies, which .NET Core and later do not have. Use `AssemblyLoadContext` and `Assembly.GetTypes()` where you need to inspect assemblies, and a scanning library such as Scrutor to register types with `Microsoft.Extensions.DependencyInjection`.
+>
+> It has not changed since 2015.
+>
+> The NuGet packages are deprecated (`NCode.Scanners`, `NCode.Scanners.Cecil` and `NCode.Scanners.Reflection`) and this repository is archived. The code stays available as it is.
+
 # NCode.Scanners
 This library provides a fluent API to search, filter, transform, and cache .NET types by probing applications (using private-bin folders), directories, files, and AppDomains, and assemblies.
 
